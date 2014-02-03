@@ -1495,6 +1495,20 @@ class GP_Pro_Entry_Content
 				),
 			),
 
+			'section-break-entry-content-qts'	=> array(
+				'break'	=> array(
+					'type'	=> 'thin',
+					'title'	=> __( 'Block Quotes', 'gppro-entry-content' ),
+				),
+			),
+
+			'section-break-entry-content-code'	=> array(
+				'break'	=> array(
+					'type'	=> 'thin',
+					'title'	=> __( 'Code Blocks', 'gppro-entry-content' ),
+				),
+			),
+
 		); // end section
 
 		return $sections;
