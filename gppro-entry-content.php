@@ -130,50 +130,165 @@ class GP_Pro_Entry_Content
 	static function entry_defaults_base( $defaults ) {
 
 /*
-			'post-entry-text'				=> '#666666',
-			'post-entry-link'				=> '#f15123',
-			'post-entry-link-hov'			=> '#333333',
 */
-
-
 		// fetch the existing defaults
-		$title_base		= isset( $defaults[ 'post-title-text' ] )		? $defaults[ 'post-title-text' ]		: '';
-		$title_link		= isset( $defaults[ 'post-title-link' ] ) 		? $defaults[ 'post-title-link' ]		: '';
-		$title_link_hov	= isset( $defaults[ 'post-title-link-hov' ] )	? $defaults[ 'post-title-link-hov' ]	: '';
+		$title_base			= isset( $defaults[ 'post-title-text' ] )		? $defaults[ 'post-title-text' ]		: '';
+		$title_stack		= isset( $defaults[ 'post-title-stack' ] )		? $defaults[ 'post-title-stack' ]		: '';
 
-		$text_base		= isset( $defaults[ 'post-entry-text' ] )		? $defaults[ 'post-entry-text' ]		: '';
-		$text_link		= isset( $defaults[ 'post-entry-link' ] ) 		? $defaults[ 'post-entry-link' ]		: '';
-		$text_link_hov	= isset( $defaults[ 'post-entry-link-hov' ] )	? $defaults[ 'post-entry-link-hov' ]	: '';
+		$text_base			= isset( $defaults[ 'post-entry-text' ] )		? $defaults[ 'post-entry-text' ]		: '';
+		$text_link			= isset( $defaults[ 'post-entry-link' ] ) 		? $defaults[ 'post-entry-link' ]		: '';
+		$text_link_hov		= isset( $defaults[ 'post-entry-link-hov' ] )	? $defaults[ 'post-entry-link-hov' ]	: '';
+		$text_stack			= isset( $defaults[ 'post-entry-stack' ] )		? $defaults[ 'post-entry-stack' ]		: '';
+		$text_size			= isset( $defaults[ 'post-entry-size' ] )		? $defaults[ 'post-entry-size' ]		: '';
+		$text_weight		= isset( $defaults[ 'post-entry-weight' ] )		? $defaults[ 'post-entry-weight' ]		: '';
+
+		$list_ul_style		= isset( $defaults[ 'post-entry-list-ul' ] )	? $defaults[ 'post-entry-list-ul' ]		: '';
+		$list_ol_style		= isset( $defaults[ 'post-entry-list-ol' ] )	? $defaults[ 'post-entry-list-ol' ]		: '';
+
+		$cap_base			= isset( $defaults[ 'post-entry-caption-text' ] )		? $defaults[ 'post-entry-caption-text' ]		: '';
+		$cap_link			= isset( $defaults[ 'post-entry-caption-link' ] ) 		? $defaults[ 'post-entry-caption-link' ]		: '';
+		$cap_link_hov		= isset( $defaults[ 'post-entry-caption-link-hov' ] )	? $defaults[ 'post-entry-caption-link-hov' ]	: '';
 
 		// general body
 		$changes	= array(
 			'entry-content-h1-color-text'		=> $title_base,
+			'entry-content-h1-color-link'		=> $text_link,
+			'entry-content-h1-color-link-hov'	=> $text_link_hov,
+			'entry-content-h1-stack'			=> $title_stack,
+			'entry-content-h1-size'				=> '36',
+			'entry-content-h1-weight'			=> '700',
+			'entry-content-h1-margin-bottom'	=> '16',
+			'entry-content-h1-padding-bottom'	=> '0',
+			'entry-content-h1-transform'		=> 'none',
+			'entry-content-h1-align'			=> 'left',
+			'entry-content-h1-link-dec'			=> 'underline',
+			'entry-content-h1-link-dec-hov'		=> 'underline',
+
 			'entry-content-h2-color-text'		=> $title_base,
+			'entry-content-h2-color-link'		=> $text_link,
+			'entry-content-h2-color-link-hov'	=> $text_link_hov,
+			'entry-content-h2-stack'			=> $title_stack,
+			'entry-content-h2-size'				=> '30',
+			'entry-content-h2-weight'			=> '700',
+			'entry-content-h2-margin-bottom'	=> '16',
+			'entry-content-h2-padding-bottom'	=> '0',
+			'entry-content-h2-transform'		=> 'none',
+			'entry-content-h2-align'			=> 'left',
+			'entry-content-h2-link-dec'			=> 'underline',
+			'entry-content-h2-link-dec-hov'		=> 'underline',
+
 			'entry-content-h3-color-text'		=> $title_base,
+			'entry-content-h3-color-link'		=> $text_link,
+			'entry-content-h3-color-link-hov'	=> $text_link_hov,
+			'entry-content-h3-stack'			=> $title_stack,
+			'entry-content-h3-size'				=> '24',
+			'entry-content-h3-weight'			=> '700',
+			'entry-content-h3-margin-bottom'	=> '16',
+			'entry-content-h3-padding-bottom'	=> '0',
+			'entry-content-h3-transform'		=> 'none',
+			'entry-content-h3-align'			=> 'left',
+			'entry-content-h3-link-dec'			=> 'underline',
+			'entry-content-h3-link-dec-hov'		=> 'underline',
+
 			'entry-content-h4-color-text'		=> $title_base,
+			'entry-content-h4-color-link'		=> $text_link,
+			'entry-content-h4-color-link-hov'	=> $text_link_hov,
+			'entry-content-h4-stack'			=> $title_stack,
+			'entry-content-h4-size'				=> '20',
+			'entry-content-h4-weight'			=> '700',
+			'entry-content-h4-margin-bottom'	=> '16',
+			'entry-content-h4-padding-bottom'	=> '0',
+			'entry-content-h4-transform'		=> 'none',
+			'entry-content-h4-align'			=> 'left',
+			'entry-content-h4-link-dec'			=> 'underline',
+			'entry-content-h4-link-dec-hov'		=> 'underline',
+
 			'entry-content-h5-color-text'		=> $title_base,
+			'entry-content-h5-color-link'		=> $text_link,
+			'entry-content-h5-color-link-hov'	=> $text_link_hov,
+			'entry-content-h5-stack'			=> $title_stack,
+			'entry-content-h5-size'				=> '18',
+			'entry-content-h5-weight'			=> '700',
+			'entry-content-h5-margin-bottom'	=> '16',
+			'entry-content-h5-padding-bottom'	=> '0',
+			'entry-content-h5-transform'		=> 'none',
+			'entry-content-h5-align'			=> 'left',
+			'entry-content-h5-link-dec'			=> 'underline',
+			'entry-content-h5-link-dec-hov'		=> 'underline',
+
 			'entry-content-h6-color-text'		=> $title_base,
-			'entry-content-h1-color-link'		=> $title_link,
-			'entry-content-h2-color-link'		=> $title_link,
-			'entry-content-h3-color-link'		=> $title_link,
-			'entry-content-h4-color-link'		=> $title_link,
-			'entry-content-h5-color-link'		=> $title_link,
-			'entry-content-h6-color-link'		=> $title_link,
-			'entry-content-h1-color-link-hov'	=> $title_link_hov,
-			'entry-content-h2-color-link-hov'	=> $title_link_hov,
-			'entry-content-h3-color-link-hov'	=> $title_link_hov,
-			'entry-content-h4-color-link-hov'	=> $title_link_hov,
-			'entry-content-h5-color-link-hov'	=> $title_link_hov,
-			'entry-content-h6-color-link-hov'	=> $title_link_hov,
+			'entry-content-h6-color-link'		=> $text_link,
+			'entry-content-h6-color-link-hov'	=> $text_link_hov,
+			'entry-content-h6-stack'			=> $title_stack,
+			'entry-content-h6-size'				=> '16',
+			'entry-content-h6-weight'			=> '700',
+			'entry-content-h6-margin-bottom'	=> '16',
+			'entry-content-h6-padding-bottom'	=> '0',
+			'entry-content-h6-transform'		=> 'none',
+			'entry-content-h6-align'			=> 'left',
+			'entry-content-h6-link-dec'			=> 'underline',
+			'entry-content-h6-link-dec-hov'		=> 'underline',
+
 			'entry-content-p-color-text'		=> $text_base,
 			'entry-content-p-color-link'		=> $text_link,
 			'entry-content-p-color-link-hov'	=> $text_link_hov,
+			'entry-content-p-stack'				=> $text_stack,
+			'entry-content-p-size'				=> $text_size,
+			'entry-content-p-weight'			=> $text_weight,
+			'entry-content-p-margin-bottom'		=> '26',
+			'entry-content-p-padding-bottom'	=> '0',
+			'entry-content-p-transform'			=> 'none',
+			'entry-content-p-align'				=> 'left',
+			'entry-content-p-link-dec'			=> 'underline',
+			'entry-content-p-link-dec-hov'		=> 'underline',
+
 			'entry-content-ul-color-text'		=> $text_base,
 			'entry-content-ul-color-link'		=> $text_link,
 			'entry-content-ul-color-link-hov'	=> $text_link_hov,
+			'entry-content-ul-stack'			=> $text_stack,
+			'entry-content-ul-size'				=> $text_size,
+			'entry-content-ul-weight'			=> $text_weight,
+			'entry-content-ul-margin-left'		=> '40',
+			'entry-content-ul-margin-bottom'	=> '26',
+			'entry-content-ul-padding-left'		=> '0',
+			'entry-content-ul-padding-bottom'	=> '0',
+			'entry-content-ul-list-style'		=> $list_ul_style,
+			'entry-content-ul-transform'		=> 'none',
+			'entry-content-ul-align'			=> 'left',
+			'entry-content-ul-link-dec'			=> 'underline',
+			'entry-content-ul-link-dec-hov'		=> 'underline',
+
 			'entry-content-ol-color-text'		=> $text_base,
 			'entry-content-ol-color-link'		=> $text_link,
 			'entry-content-ol-color-link-hov'	=> $text_link_hov,
+			'entry-content-ol-stack'			=> $text_stack,
+			'entry-content-ol-size'				=> $text_size,
+			'entry-content-ol-weight'			=> $text_weight,
+			'entry-content-ol-margin-left'		=> '40',
+			'entry-content-ol-margin-bottom'	=> '26',
+			'entry-content-ol-padding-left'		=> '0',
+			'entry-content-ol-padding-bottom'	=> '0',
+			'entry-content-ol-list-style'		=> $list_ol_style,
+			'entry-content-ol-transform'		=> 'none',
+			'entry-content-ol-align'			=> 'left',
+			'entry-content-ol-link-dec'			=> 'underline',
+			'entry-content-ol-link-dec-hov'		=> 'underline',
+
+			'entry-content-cap-color-text'		=> $cap_base,
+			'entry-content-cap-color-link'		=> $cap_link,
+			'entry-content-cap-color-link-hov'	=> $cap_link_hov,
+			'entry-content-cap-stack'			=> $text_stack,
+			'entry-content-cap-size'			=> $text_size,
+			'entry-content-cap-weight'			=> $text_weight,
+			'entry-content-cap-transform'		=> 'none',
+			'entry-content-cap-margin-bottom'	=> '26',
+			'entry-content-cap-padding-bottom'	=> '0',
+			'entry-content-cap-transform'		=> 'none',
+			'entry-content-cap-align'			=> 'center',
+			'entry-content-cap-link-dec'		=> 'underline',
+			'entry-content-cap-link-dec-hov'	=> 'underline',
+
+
 		);
 
 		// put into key value pair
@@ -1447,7 +1562,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h1-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h1-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h1-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1504,7 +1619,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h2-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h2-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h2-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1561,7 +1676,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h3-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h3-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h3-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1618,7 +1733,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h4-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h4-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h4-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1675,7 +1790,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h5-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h5-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h5-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1732,7 +1847,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h6-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h6-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h6-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1789,7 +1904,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-p-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-p-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-p-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1824,11 +1939,15 @@ class GP_Pro_Entry_Content
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-padding-bottom' ) )
 				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-ul-padding-bottom'] );
 
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-list-style' ) )
+				$css	.= GP_Pro_Builder::text_css( 'list-style-type', $data['entry-content-ul-list-style'] );
+
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-transform' ) )
 				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-ul-transform'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-align' ) )
 				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-ul-align'] );
+
 
 		$css	.= '}'."\n";
 
@@ -1853,7 +1972,7 @@ class GP_Pro_Entry_Content
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ul-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ul-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ul-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
@@ -1861,7 +1980,7 @@ class GP_Pro_Entry_Content
 		$css	.= '}'."\n";
 
 		// ol setup
-		$css	.= $class.' .entry-content ul { ';
+		$css	.= $class.' .entry-content ol { ';
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-text' ) )
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-text'] );
@@ -1887,6 +2006,9 @@ class GP_Pro_Entry_Content
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-padding-bottom' ) )
 				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-ol-padding-bottom'] );
 
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-list-style' ) )
+				$css	.= GP_Pro_Builder::text_css( 'list-style-type', $data['entry-content-ol-list-style'] );
+
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-transform' ) )
 				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-ol-transform'] );
 
@@ -1896,7 +2018,7 @@ class GP_Pro_Entry_Content
 		$css	.= '}'."\n";
 
 		// ol link standard
-		$css	.= $class.' .entry-content ul a { ';
+		$css	.= $class.' .entry-content ol a { ';
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-link' ) )
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-link'] );
@@ -1910,15 +2032,72 @@ class GP_Pro_Entry_Content
 		$css	.= '}'."\n";
 
 		// ol link hover / focus
-		$css	.= $class.' .entry-content ul a:hover, '.$class.' .entry-content ul a:focus { ';
+		$css	.= $class.' .entry-content ol a:hover, '.$class.' .entry-content ol a:focus { ';
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-link-hov' ) )
 				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-link-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec-hov' ) )
-				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ol-link-dec'] );
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ol-link-dec-hov'] );
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// image caption setup
+		$css	.= $class.' .entry-content .wp-caption-text { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-cap-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-cap-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-cap-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-cap-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-cap-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-cap-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-cap-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-cap-align'] );
+
+		$css	.= '}'."\n";
+
+		// caption link standard
+		$css	.= $class.' .entry-content .wp-caption-text a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-cap-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-cap-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// caption link hover / focus
+		$css	.= $class.' .entry-content .wp-caption-text a:hover, '.$class.' .entry-content .wp-caption-text a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-cap-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-cap-link-dec-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
 
 		$css	.= '}'."\n";
