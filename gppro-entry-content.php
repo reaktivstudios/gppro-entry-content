@@ -55,10 +55,11 @@ class GP_Pro_Entry_Content
 		add_action		(	'admin_notices',						array(	$this,	'gppro_active_check'			),	10		);
 
 		// GP Pro specific
+		add_filter		(	'gppro_set_defaults',					array(	$this,	'entry_defaults_base'			),	30		);
 		add_filter		(	'gppro_admin_block_add',				array(	$this,	'entry_content_block'			),	1		);
 		add_filter		(	'gppro_section_inline_post_content',	array(	$this,	'entry_inline_post_content'		),	15,	2	);
 		add_filter		(	'gppro_sections',						array(	$this,	'entry_content_sections'		),	10,	2	);
-		add_filter		(	'gppro_css_builder',					array(	$this,	'entry_content_builder'			),	10,	3	);
+		add_filter		(	'gppro_css_inline_post_content',		array(	$this,	'entry_css_post_content'		),	15,	3	);
 	}
 
 	/**
@@ -120,6 +121,70 @@ class GP_Pro_Entry_Content
 	}
 
 
+	/**
+	 * swap default values
+	 *
+	 * @return string $defaults
+	 */
+
+	static function entry_defaults_base( $defaults ) {
+
+/*
+			'post-entry-text'				=> '#666666',
+			'post-entry-link'				=> '#f15123',
+			'post-entry-link-hov'			=> '#333333',
+*/
+
+
+		// fetch the existing defaults
+		$title_base		= isset( $defaults[ 'post-title-text' ] )		? $defaults[ 'post-title-text' ]		: '';
+		$title_link		= isset( $defaults[ 'post-title-link' ] ) 		? $defaults[ 'post-title-link' ]		: '';
+		$title_link_hov	= isset( $defaults[ 'post-title-link-hov' ] )	? $defaults[ 'post-title-link-hov' ]	: '';
+
+		$text_base		= isset( $defaults[ 'post-entry-text' ] )		? $defaults[ 'post-entry-text' ]		: '';
+		$text_link		= isset( $defaults[ 'post-entry-link' ] ) 		? $defaults[ 'post-entry-link' ]		: '';
+		$text_link_hov	= isset( $defaults[ 'post-entry-link-hov' ] )	? $defaults[ 'post-entry-link-hov' ]	: '';
+
+		// general body
+		$changes	= array(
+			'entry-content-h1-color-text'		=> $title_base,
+			'entry-content-h2-color-text'		=> $title_base,
+			'entry-content-h3-color-text'		=> $title_base,
+			'entry-content-h4-color-text'		=> $title_base,
+			'entry-content-h5-color-text'		=> $title_base,
+			'entry-content-h6-color-text'		=> $title_base,
+			'entry-content-h1-color-link'		=> $title_link,
+			'entry-content-h2-color-link'		=> $title_link,
+			'entry-content-h3-color-link'		=> $title_link,
+			'entry-content-h4-color-link'		=> $title_link,
+			'entry-content-h5-color-link'		=> $title_link,
+			'entry-content-h6-color-link'		=> $title_link,
+			'entry-content-h1-color-link-hov'	=> $title_link_hov,
+			'entry-content-h2-color-link-hov'	=> $title_link_hov,
+			'entry-content-h3-color-link-hov'	=> $title_link_hov,
+			'entry-content-h4-color-link-hov'	=> $title_link_hov,
+			'entry-content-h5-color-link-hov'	=> $title_link_hov,
+			'entry-content-h6-color-link-hov'	=> $title_link_hov,
+			'entry-content-p-color-text'		=> $text_base,
+			'entry-content-p-color-link'		=> $text_link,
+			'entry-content-p-color-link-hov'	=> $text_link_hov,
+			'entry-content-ul-color-text'		=> $text_base,
+			'entry-content-ul-color-link'		=> $text_link,
+			'entry-content-ul-color-link-hov'	=> $text_link_hov,
+			'entry-content-ol-color-text'		=> $text_base,
+			'entry-content-ol-color-link'		=> $text_link,
+			'entry-content-ol-color-link-hov'	=> $text_link_hov,
+		);
+
+		// put into key value pair
+		foreach ( $changes as $key => $value ) :
+			$defaults[ $key ]	= $value;
+		endforeach;
+
+		// send them back
+		return $defaults;
+
+	}
 
 	/**
 	 * add and filter options in the post content area
@@ -132,7 +197,6 @@ class GP_Pro_Entry_Content
 		// remove the default post content settings in favor of our new ones
 		unset( $sections['post-entry-color-setup']['title'] );
 		unset( $sections['post-entry-type-setup'] );
-
 
 		// info about new area
 		$sections['post-entry-color-setup']['data']	= array(
@@ -240,7 +304,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h1-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h1',
 						'selector'	=> 'margin-bottom',
@@ -249,7 +313,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h1-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h1',
 						'selector'	=> 'padding-bottom',
@@ -349,7 +413,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h2-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h2',
 						'selector'	=> 'margin-bottom',
@@ -358,7 +422,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h2-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h2',
 						'selector'	=> 'padding-bottom',
@@ -458,7 +522,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h3-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h3',
 						'selector'	=> 'margin-bottom',
@@ -467,7 +531,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h3-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h3',
 						'selector'	=> 'padding-bottom',
@@ -549,7 +613,7 @@ class GP_Pro_Entry_Content
 					'entry-content-h4-size'	=> array(
 						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
 						'input'		=> 'font-size',
-						'scale'		=> 'title',
+						'scale'		=> 'text',
 						'target'	=> $class.' .content .entry-content h4',
 						'selector'	=> 'font-size',
 					),
@@ -567,7 +631,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h4-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h4',
 						'selector'	=> 'margin-bottom',
@@ -576,7 +640,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h4-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h4',
 						'selector'	=> 'padding-bottom',
@@ -658,7 +722,7 @@ class GP_Pro_Entry_Content
 					'entry-content-h5-size'	=> array(
 						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
 						'input'		=> 'font-size',
-						'scale'		=> 'title',
+						'scale'		=> 'text',
 						'target'	=> $class.' .content .entry-content h5',
 						'selector'	=> 'font-size',
 					),
@@ -676,7 +740,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h5-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h5',
 						'selector'	=> 'margin-bottom',
@@ -685,7 +749,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h5-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h5',
 						'selector'	=> 'padding-bottom',
@@ -767,7 +831,7 @@ class GP_Pro_Entry_Content
 					'entry-content-h6-size'	=> array(
 						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
 						'input'		=> 'font-size',
-						'scale'		=> 'title',
+						'scale'		=> 'text',
 						'target'	=> $class.' .content .entry-content h6',
 						'selector'	=> 'font-size',
 					),
@@ -785,7 +849,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-h6-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h6',
 						'selector'	=> 'margin-bottom',
@@ -794,7 +858,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-h6-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content h6',
 						'selector'	=> 'padding-bottom',
@@ -876,7 +940,7 @@ class GP_Pro_Entry_Content
 					'entry-content-p-size'	=> array(
 						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
 						'input'		=> 'font-size',
-						'scale'		=> 'title',
+						'scale'		=> 'text',
 						'target'	=> $class.' .content .entry-content p',
 						'selector'	=> 'font-size',
 					),
@@ -894,7 +958,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-p-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content p',
 						'selector'	=> 'margin-bottom',
@@ -903,7 +967,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-p-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content p',
 						'selector'	=> 'padding-bottom',
@@ -935,6 +999,273 @@ class GP_Pro_Entry_Content
 						'sub'		=> __( 'Hover', 'gppro-entry-content' ),
 						'input'		=> 'text-decoration',
 						'target'	=> $class.' .content .entry-content p a:hover',
+						'selector'	=> 'text-decoration'
+					),
+				),
+			),
+
+
+			'section-break-entry-content-ul'	=> array(
+				'break'	=> array(
+					'type'	=> 'thin',
+					'title'	=> __( 'Unordered Lists (<ul>)', 'gppro-entry-content' ),
+				),
+			),
+
+			'entry-content-ul-color-setup'	=> array(
+				'title'		=> __( 'Colors', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ul-color-text'	=> array(
+						'label'		=> __( 'Base Color', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'color'
+					),
+					'entry-content-ul-color-link'	=> array(
+						'label'		=> __( 'Link Color', 'gppro-entry-content' ),
+						'sub'		=> __( 'Base', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ul a',
+						'selector'	=> 'color'
+					),
+					'entry-content-ul-color-link-hov'	=> array(
+						'label'		=> __( 'Link Color', 'gppro-entry-content' ),
+						'sub'		=> __( 'Hover', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ul a:hover',
+						'selector'	=> 'color'
+					),
+				),
+			),
+
+			'entry-content-ul-type-setup'	=> array(
+				'title'		=> __( 'Typography', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ul-stack'	=> array(
+						'label'		=> __( 'Font Stack', 'gppro-entry-content' ),
+						'input'		=> 'font-stack',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'font-family'
+					),
+					'entry-content-ul-size'	=> array(
+						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
+						'input'		=> 'font-size',
+						'scale'		=> 'text',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'font-size',
+					),
+					'entry-content-ul-weight'	=> array(
+						'label'		=> __( 'Font Weight', 'gppro-entry-content' ),
+						'input'		=> 'font-weight',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'font-weight',
+						'tip'		=> __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+					),
+				),
+			),
+
+			'entry-content-ul-appearance-setup'	=> array(
+				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ul-margin-left'	=> array(
+						'label'		=> __( 'Margin Left', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'margin-left',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ul-margin-bottom'	=> array(
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'margin-bottom',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ul-padding-left'	=> array(
+						'label'		=> __( 'Padding Left', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'padding-left',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ul-padding-bottom'	=> array(
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'padding-bottom',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ul-list-style'	=> array(
+						'label'		=> __( 'List Style', 'gppro' ),
+						'input'		=> 'lists',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'list-style-type',
+					),
+					'entry-content-ul-transform'	=> array(
+						'label'		=> __( 'Text Appearance', 'gppro-entry-content' ),
+						'input'		=> 'text-transform',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'text-transform'
+					),
+					'entry-content-ul-align'	=> array(
+						'label'		=> __( 'Text Alignment', 'gppro-entry-content' ),
+						'input'		=> 'text-align',
+						'target'	=> $class.' .content .entry-content ul',
+						'selector'	=> 'text-align'
+					),
+					'entry-content-ul-link-dec' => array(
+						'label'		=> __( 'Link Style', 'gppro-entry-content' ),
+						'sub'		=> __( 'Base', 'gppro-entry-content' ),
+						'input'		=> 'text-decoration',
+						'target'	=> $class.' .content .entry-content ul a',
+						'selector'	=> 'text-decoration'
+					),
+					'entry-content-ul-link-dec-hov' => array(
+						'label'		=> __( 'Link Style', 'gppro-entry-content' ),
+						'sub'		=> __( 'Hover', 'gppro-entry-content' ),
+						'input'		=> 'text-decoration',
+						'target'	=> $class.' .content .entry-content ul a:hover',
+						'selector'	=> 'text-decoration'
+					),
+				),
+			),
+
+			'section-break-entry-content-ol'	=> array(
+				'break'	=> array(
+					'type'	=> 'thin',
+					'title'	=> __( 'Ordered Lists (<ol>)', 'gppro-entry-content' ),
+				),
+			),
+
+			'entry-content-ol-color-setup'	=> array(
+				'title'		=> __( 'Colors', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ol-color-text'	=> array(
+						'label'		=> __( 'Base Color', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'color'
+					),
+					'entry-content-ol-color-link'	=> array(
+						'label'		=> __( 'Link Color', 'gppro-entry-content' ),
+						'sub'		=> __( 'Base', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ol a',
+						'selector'	=> 'color'
+					),
+					'entry-content-ol-color-link-hov'	=> array(
+						'label'		=> __( 'Link Color', 'gppro-entry-content' ),
+						'sub'		=> __( 'Hover', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .content .entry-content ol a:hover',
+						'selector'	=> 'color'
+					),
+				),
+			),
+
+			'entry-content-ol-type-setup'	=> array(
+				'title'		=> __( 'Typography', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ol-stack'	=> array(
+						'label'		=> __( 'Font Stack', 'gppro-entry-content' ),
+						'input'		=> 'font-stack',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'font-family'
+					),
+					'entry-content-ol-size'	=> array(
+						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
+						'input'		=> 'font-size',
+						'scale'		=> 'text',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'font-size',
+					),
+					'entry-content-ol-weight'	=> array(
+						'label'		=> __( 'Font Weight', 'gppro-entry-content' ),
+						'input'		=> 'font-weight',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'font-weight',
+						'tip'		=> __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+					),
+				),
+			),
+
+			'entry-content-ol-appearance-setup'	=> array(
+				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-ol-margin-left'	=> array(
+						'label'		=> __( 'Margin Left', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'margin-left',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ol-margin-bottom'	=> array(
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'margin-bottom',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ol-padding-left'	=> array(
+						'label'		=> __( 'Padding Left', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'padding-left',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ol-padding-bottom'	=> array(
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
+						'input'		=> 'spacing',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'padding-bottom',
+						'min'		=> '0',
+						'max'		=> '60',
+						'step'		=> '1'
+					),
+					'entry-content-ol-list-style'	=> array(
+						'label'		=> __( 'List Style', 'gppro' ),
+						'input'		=> 'lists',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'list-style-type',
+					),
+					'entry-content-ol-transform'	=> array(
+						'label'		=> __( 'Text Appearance', 'gppro-entry-content' ),
+						'input'		=> 'text-transform',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'text-transform'
+					),
+					'entry-content-ol-align'	=> array(
+						'label'		=> __( 'Text Alignment', 'gppro-entry-content' ),
+						'input'		=> 'text-align',
+						'target'	=> $class.' .content .entry-content ol',
+						'selector'	=> 'text-align'
+					),
+					'entry-content-ol-link-dec' => array(
+						'label'		=> __( 'Link Style', 'gppro-entry-content' ),
+						'sub'		=> __( 'Base', 'gppro-entry-content' ),
+						'input'		=> 'text-decoration',
+						'target'	=> $class.' .content .entry-content ol a',
+						'selector'	=> 'text-decoration'
+					),
+					'entry-content-ol-link-dec-hov' => array(
+						'label'		=> __( 'Link Style', 'gppro-entry-content' ),
+						'sub'		=> __( 'Hover', 'gppro-entry-content' ),
+						'input'		=> 'text-decoration',
+						'target'	=> $class.' .content .entry-content ol a:hover',
 						'selector'	=> 'text-decoration'
 					),
 				),
@@ -985,7 +1316,7 @@ class GP_Pro_Entry_Content
 					'entry-content-cap-size'	=> array(
 						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
 						'input'		=> 'font-size',
-						'scale'		=> 'title',
+						'scale'		=> 'text',
 						'target'	=> $class.' .content .entry-content .wp-caption-text',
 						'selector'	=> 'font-size',
 					),
@@ -1003,7 +1334,7 @@ class GP_Pro_Entry_Content
 				'title'		=> __( 'Text Appearance', 'gppro-entry-content' ),
 				'data'		=> array(
 					'entry-content-cap-margin-bottom'	=> array(
-						'label'		=> __( 'Bottom Margin', 'gppro-entry-content' ),
+						'label'		=> __( 'Margin Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content .wp-caption-text',
 						'selector'	=> 'margin-bottom',
@@ -1012,7 +1343,7 @@ class GP_Pro_Entry_Content
 						'step'		=> '1'
 					),
 					'entry-content-cap-padding-bottom'	=> array(
-						'label'		=> __( 'Bottom Padding', 'gppro-entry-content' ),
+						'label'		=> __( 'Padding Bottom', 'gppro-entry-content' ),
 						'input'		=> 'spacing',
 						'target'	=> $class.' .content .entry-content .wp-caption-text',
 						'selector'	=> 'padding-bottom',
@@ -1062,12 +1393,538 @@ class GP_Pro_Entry_Content
 	 * @return
 	 */
 
-	public function entry_content_builder( $custom, $data, $class ) {
+	public function entry_css_post_content( $css, $data, $class ) {
 
-		$custom	= '/* custom freeform CSS */'."\n";
+		$css	.= '/* detailed entry content CSS */'."\n";
+
+		// H1 setup
+		$css	.= $class.' .entry-content h1 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h1-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h1-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h1-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h1-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h1-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h1-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h1-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h1-align'] );
+
+		$css	.= '}'."\n";
+
+		// H1 link standard
+		$css	.= $class.' .entry-content h1 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h1-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h1-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H1 link hover / focus
+		$css	.= $class.' .entry-content h1 a:hover, '.$class.' .entry-content h1 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h1-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h1-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h1-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H2 setup
+		$css	.= $class.' .entry-content h2 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h2-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h2-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h2-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h2-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h2-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h2-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h2-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h2-align'] );
+
+		$css	.= '}'."\n";
+
+		// H2 link standard
+		$css	.= $class.' .entry-content h2 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h2-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h2-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H2 link hover / focus
+		$css	.= $class.' .entry-content h2 a:hover, '.$class.' .entry-content h2 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h2-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h2-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h2-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H3 setup
+		$css	.= $class.' .entry-content h3 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h3-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h3-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h3-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h3-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h3-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h3-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h3-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h3-align'] );
+
+		$css	.= '}'."\n";
+
+		// H3 link standard
+		$css	.= $class.' .entry-content h3 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h3-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h3-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H3 link hover / focus
+		$css	.= $class.' .entry-content h3 a:hover, '.$class.' .entry-content h3 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h3-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h3-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h3-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H4 setup
+		$css	.= $class.' .entry-content h4 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h4-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h4-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h4-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h4-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h4-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h4-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h4-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h4-align'] );
+
+		$css	.= '}'."\n";
+
+		// H4 link standard
+		$css	.= $class.' .entry-content h4 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h4-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h4-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H4 link hover / focus
+		$css	.= $class.' .entry-content h4 a:hover, '.$class.' .entry-content h4 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h4-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h4-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h4-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H5 setup
+		$css	.= $class.' .entry-content h5 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h5-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h5-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h5-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h5-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h5-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h5-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h5-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h5-align'] );
+
+		$css	.= '}'."\n";
+
+		// H5 link standard
+		$css	.= $class.' .entry-content h5 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h5-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h5-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H5 link hover / focus
+		$css	.= $class.' .entry-content h5 a:hover, '.$class.' .entry-content h5 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h5-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h5-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h5-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H6 setup
+		$css	.= $class.' .entry-content h6 { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h6-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-h6-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-h6-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-h6-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-h6-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-h6-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-h6-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-h6-align'] );
+
+		$css	.= '}'."\n";
+
+		// H6 link standard
+		$css	.= $class.' .entry-content h6 a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h6-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h6-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// H6 link hover / focus
+		$css	.= $class.' .entry-content h6 a:hover, '.$class.' .entry-content h6 a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-h6-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-h6-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-h6-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// p setup
+		$css	.= $class.' .entry-content p { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-p-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-p-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-p-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-p-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-p-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-p-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-p-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-p-align'] );
+
+		$css	.= '}'."\n";
+
+		// p link standard
+		$css	.= $class.' .entry-content p a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-p-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-p-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// p link hover / focus
+		$css	.= $class.' .entry-content p a:hover, '.$class.' .entry-content p a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-p-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-p-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-p-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
 
 
-		return $custom;
+		// ul setup
+		$css	.= $class.' .entry-content ul { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ul-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-ul-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-ul-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-ul-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-margin-left' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-left', $data['entry-content-ul-margin-left'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-ul-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-padding-left' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-left', $data['entry-content-ul-padding-left'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-ul-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-ul-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-ul-align'] );
+
+		$css	.= '}'."\n";
+
+		// ul link standard
+		$css	.= $class.' .entry-content ul a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ul-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ul-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// ul link hover / focus
+		$css	.= $class.' .entry-content ul a:hover, '.$class.' .entry-content ul a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ul-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ul-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ul-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// ol setup
+		$css	.= $class.' .entry-content ul { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-ol-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-ol-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-ol-weight'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-margin-left' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-left', $data['entry-content-ol-margin-left'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-margin-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'margin-bottom', $data['entry-content-ol-margin-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-padding-left' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-left', $data['entry-content-ol-padding-left'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-padding-bottom' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'padding-bottom', $data['entry-content-ol-padding-bottom'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-transform' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-transform', $data['entry-content-ol-transform'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-align' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-align', $data['entry-content-ol-align'] );
+
+		$css	.= '}'."\n";
+
+		// ol link standard
+		$css	.= $class.' .entry-content ul a { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-link' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-link'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ol-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// ol link hover / focus
+		$css	.= $class.' .entry-content ul a:hover, '.$class.' .entry-content ul a:focus { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-color-link-hov' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-ol-color-link-hov'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'text-decoration', $data['entry-content-ol-link-dec'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-ol-link-dec-hov' ) )
+				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// send all the CSS back
+		return $css;
 
 	}
 
