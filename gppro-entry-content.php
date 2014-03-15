@@ -129,8 +129,6 @@ class GP_Pro_Entry_Content
 
 	static function entry_defaults_base( $defaults ) {
 
-/*
-*/
 		// fetch the existing defaults
 		$title_base			= isset( $defaults[ 'post-title-text' ] )		? $defaults[ 'post-title-text' ]		: '';
 		$title_stack		= isset( $defaults[ 'post-title-stack' ] )		? $defaults[ 'post-title-stack' ]		: '';
