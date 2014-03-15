@@ -56,7 +56,7 @@ class GP_Pro_Entry_Content
 
 		// GP Pro specific
 		add_filter		(	'gppro_set_defaults',					array(	$this,	'entry_defaults_base'			),	30		);
-		add_filter		(	'gppro_admin_block_add',				array(	$this,	'entry_content_block'			),	1		);
+		add_filter		(	'gppro_admin_block_add',				array(	$this,	'entry_content_block'			),	35		);
 		add_filter		(	'gppro_section_inline_post_content',	array(	$this,	'entry_inline_post_content'		),	15,	2	);
 		add_filter		(	'gppro_sections',						array(	$this,	'entry_content_sections'		),	10,	2	);
 		add_filter		(	'gppro_css_inline_post_content',		array(	$this,	'entry_css_post_content'		),	15,	3	);
