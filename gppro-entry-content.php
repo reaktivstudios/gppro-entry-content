@@ -286,6 +286,11 @@ class GP_Pro_Entry_Content
 			'entry-content-cap-link-dec'		=> 'underline',
 			'entry-content-cap-link-dec-hov'	=> 'underline',
 
+			'entry-content-code-color-text'		=> '#dddddd',
+			'entry-content-code-background'		=> '#333333',
+			'entry-content-code-stack'			=> 'monospace',
+			'entry-content-code-size'			=> '16',
+			'entry-content-code-weight'			=> '400',
 
 		);
 
@@ -1493,17 +1498,54 @@ class GP_Pro_Entry_Content
 				),
 			),
 
-			'section-break-entry-content-qts'	=> array(
-				'break'	=> array(
-					'type'	=> 'thin',
-					'title'	=> __( 'Block Quotes', 'gppro-entry-content' ),
-				),
-			),
-
 			'section-break-entry-content-code'	=> array(
 				'break'	=> array(
 					'type'	=> 'thin',
 					'title'	=> __( 'Code Blocks', 'gppro-entry-content' ),
+				),
+			),
+
+			'entry-content-code-color-setup'	=> array(
+				'title'		=> __( 'Colors', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-code-background'	=> array(
+						'label'		=> __( 'Background Color', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .entry-content code',
+						'selector'	=> 'background-color'
+					),
+					'entry-content-code-color-text'	=> array(
+						'label'		=> __( 'Base Color', 'gppro-entry-content' ),
+						'input'		=> 'color',
+						'target'	=> $class.' .entry-content code',
+						'selector'	=> 'color'
+					),
+				),
+			),
+
+			'entry-content-code-type-setup'	=> array(
+				'title'		=> __( 'Typography', 'gppro-entry-content' ),
+				'data'		=> array(
+					'entry-content-code-stack'	=> array(
+						'label'		=> __( 'Font Stack', 'gppro-entry-content' ),
+						'input'		=> 'font-stack',
+						'target'	=> $class.' .entry-content code',
+						'selector'	=> 'font-family'
+					),
+					'entry-content-code-size'	=> array(
+						'label'		=> __( 'Font Size', 'gppro-entry-content' ),
+						'input'		=> 'font-size',
+						'scale'		=> 'text',
+						'target'	=> $class.' .entry-content code',
+						'selector'	=> 'font-size',
+					),
+					'entry-content-code-weight'	=> array(
+						'label'		=> __( 'Font Weight', 'gppro-entry-content' ),
+						'input'		=> 'font-weight',
+						'target'	=> $class.' .entry-content code',
+						'selector'	=> 'font-weight',
+						'tip'		=> __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+					),
 				),
 			),
 
@@ -2124,6 +2166,26 @@ class GP_Pro_Entry_Content
 
 			if ( GP_Pro_Builder::build_check( $data, 'entry-content-cap-link-dec-hov' ) )
 				$css	.= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+
+		$css	.= '}'."\n";
+
+		// code blocks
+		$css	.= $class.' .entry-content code { ';
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-code-color-text' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'color', $data['entry-content-code-color-text'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-code-background' ) )
+				$css	.= GP_Pro_Builder::hexcolor_css( 'background-color', $data['entry-content-code-background'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-code-stack' ) )
+				$css	.= GP_Pro_Builder::stack_css( 'font-family', $data['entry-content-code-stack'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-code-size' ) )
+				$css	.= GP_Pro_Builder::px_rem_css( 'font-size', $data['entry-content-code-size'] );
+
+			if ( GP_Pro_Builder::build_check( $data, 'entry-content-code-weight' ) )
+				$css	.= GP_Pro_Builder::number_css( 'font-weight', $data['entry-content-code-weight'] );
 
 		$css	.= '}'."\n";
 
