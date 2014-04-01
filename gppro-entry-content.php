@@ -24,14 +24,17 @@ Author URI: http://andrewnorcross.com
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if( !defined( 'GPECN_BASE' ) )
+if( ! defined( 'GPECN_BASE' ) ) {
 	define( 'GPECN_BASE', plugin_basename(__FILE__) );
+}
 
-if( !defined( 'GPECN_DIR' ) )
+if( ! defined( 'GPECN_DIR' ) ) {
 	define( 'GPECN_DIR', dirname( __FILE__ ) );
+}
 
-if( !defined( 'GPECN_VER' ) )
+if( ! defined( 'GPECN_VER' ) ) {
 	define( 'GPECN_VER', '1.0.0' );
+}
 
 
 class GP_Pro_Entry_Content
@@ -70,8 +73,11 @@ class GP_Pro_Entry_Content
 	 */
 
 	public static function getInstance() {
-		if ( !self::$instance )
+
+		if ( !self::$instance ) {
 			self::$instance = new self;
+		}
+
 		return self::$instance;
 	}
 
@@ -97,8 +103,9 @@ class GP_Pro_Entry_Content
 
 		$screen = get_current_screen();
 
-		if ( $screen->parent_file !== 'plugins.php' )
+		if ( $screen->parent_file !== 'plugins.php' ) {
 			return;
+		}
 
 		// look for our flag
 		$coreactive	= get_option( 'gppro_core_active' );
