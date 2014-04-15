@@ -107,8 +107,8 @@ class GP_Pro_Entry_Content
 			return;
 		}
 
-		// look for our flag
-		$coreactive	= get_option( 'gppro_core_active' );
+		// run the active check
+		$coreactive	= class_exists( 'Genesis_Palette_Pro' ) ? Genesis_Palette_Pro::check_active() : false;
 
 		// not active. show message
 		if ( ! $coreactive ) :
