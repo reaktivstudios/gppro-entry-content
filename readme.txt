@@ -1,7 +1,7 @@
 === Genesis Design Palette Pro - Entry Content Style ===
 Contributors: norcross, jjeaton, reaktivstudios
 Requires at least: 3.7
-Tested up to: 3.8.1
+Tested up to: 4.0
 Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -32,7 +32,7 @@ Install and activate it.
 
 = 1.0.1: 2014-07-25 =
 
-* Required upgrade for compatibility with Design Palette Pro 1.2.5+
+* Required upgrade for compatibility with Design Palette Pro 1.3.0+
 
 = 1.0.0 =
 
@@ -42,4 +42,4 @@ Install and activate it.
 
 = 1.0.1: 2014-07-25 =
 
-* Required upgrade for compatibility with Design Palette Pro 1.2.5+
+* Required upgrade for compatibility with Design Palette Pro 1.3.0+
