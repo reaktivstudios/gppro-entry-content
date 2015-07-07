@@ -59,10 +59,10 @@ class GP_Pro_Entry_Content
 		add_action( 'admin_notices',                        array( $this, 'gppro_version_check'             ),  10      );
 
 		// GP Pro specific
-		add_filter( 'gppro_set_defaults',                   array( $this, 'entry_defaults_base'             ),  30      );
+		add_filter( 'gppro_set_defaults',                   array( $this, 'entry_defaults_base'             ),  40      );
 		add_filter( 'gppro_admin_block_add',                array( $this, 'entry_content_block'             ),  35      );
-		add_filter( 'gppro_section_inline_post_content',    array( $this, 'entry_inline_post_content'       ),  15, 2   );
-		add_filter( 'gppro_sections',                       array( $this, 'entry_content_sections'          ),  10, 2   );
+		add_filter( 'gppro_section_inline_post_content',    array( $this, 'entry_inline_post_content'       ),  25, 2   );
+		add_filter( 'gppro_sections',                       array( $this, 'entry_content_sections'          ),  20, 2   );
 	}
 
 	/**
@@ -156,7 +156,7 @@ class GP_Pro_Entry_Content
 	 *
 	 * @return string $defaults
 	 */
-	public static function entry_defaults_base( $defaults ) {
+	public function entry_defaults_base( $defaults ) {
 
 		// fetch the existing defaults
 		$title_base      = ! empty( $defaults['post-title-text'] ) ? $defaults['post-title-text'] : '';
@@ -168,6 +168,7 @@ class GP_Pro_Entry_Content
 		$text_stack      = ! empty( $defaults['post-entry-stack'] ) ? $defaults['post-entry-stack'] : '';
 		$text_size       = ! empty( $defaults['post-entry-size'] ) ? $defaults['post-entry-size'] : '';
 		$text_weight     = ! empty( $defaults['post-entry-weight'] ) ? $defaults['post-entry-weight'] : '';
+		$text_style      = ! empty( $defaults['post-entry-style'] ) ? $defaults['post-entry-style'] : '';
 
 		$list_ul_style   = ! empty( $defaults['post-entry-list-ul'] ) ? $defaults['post-entry-list-ul'] : '';
 		$list_ol_style   = ! empty( $defaults['post-entry-list-ol'] ) ? $defaults['post-entry-list-ol'] : '';
@@ -315,6 +316,31 @@ class GP_Pro_Entry_Content
 			'entry-content-cap-link-dec'        => 'underline',
 			'entry-content-cap-link-dec-hov'    => 'underline',
 
+			'entry-content-bquotes-padding-top'     => '0',
+			'entry-content-bquotes-padding-bottom'  => '0',
+			'entry-content-bquotes-padding-left'    => '0',
+			'entry-content-bquotes-padding-right'   => '0',
+			'entry-content-bquotes-margin-top'      => '40',
+			'entry-content-bquotes-margin-bottom'   => '40',
+			'entry-content-bquotes-margin-left'     => '40',
+			'entry-content-bquotes-margin-right'    => '40',
+			'entry-content-bquotes-background'      => '',
+			'entry-content-bquotes-color-text'      => $text_base,
+			'entry-content-bquotes-color-link'      => $text_link,
+			'entry-content-bquotes-color-link-hov'  => $text_link_hov,
+
+			'entry-content-bquotes-stack'    => $text_stack,
+			'entry-content-bquotes-size'     => $text_size,
+			'entry-content-bquotes-weight'   => $text_weight,
+
+			'entry-content-bquotes-margin-bottom'   => '28',
+			'entry-content-bquotes-padding-bottom'  => '0',
+			'entry-content-bquotes-transform'       => 'none',
+			'entry-content-bquotes-align'           => 'left',
+			'entry-content-bquotes-style'           => $text_style,
+			'entry-content-bquotes-link-dec'        => 'none',
+			'entry-content-bquotes-link-dec-hov'    => 'none',
+
 			'entry-content-code-color-text'     => '#dddddd',
 			'entry-content-code-background'     => '#333333',
 			'entry-content-code-stack'          => 'monospace',
@@ -366,12 +392,17 @@ class GP_Pro_Entry_Content
 	 */
 	public function entry_content_block( $blocks ) {
 
-		$blocks['entry-content'] = array(
-			'tab'       => __( 'Entry Content', 'gppro-entry-content' ),
-			'title'     => __( 'Entry Content', 'gppro-entry-content' ),
-			'intro'     => __( 'Fine tune the look of the content inside posts and pages.<br /><strong>Note:</strong> Post title and meta display settings are still contained in the Content Area tab.', 'gppro-entry-content' ),
-			'slug'      => 'entry_content',
-		);
+		// check for the block first
+		if ( ! isset( $blocks['entry-content'] ) ) {
+
+			// add the block
+			$blocks['entry-content'] = array(
+				'tab'       => __( 'Entry Content', 'gppro-entry-content' ),
+				'title'     => __( 'Entry Content', 'gppro-entry-content' ),
+				'intro'     => __( 'Fine tune the look of the content inside posts and pages.<br /><strong>Note:</strong> Post title and meta display settings are still contained in the Content Area tab.', 'gppro-entry-content' ),
+				'slug'      => 'entry_content',
+			);
+		}
 
 		// return the block
 		return $blocks;
@@ -1241,7 +1272,6 @@ class GP_Pro_Entry_Content
 				),
 			),
 
-
 			'section-break-entry-content-ul'    => array(
 				'break' => array(
 					'type'  => 'thin',
@@ -1656,6 +1686,244 @@ class GP_Pro_Entry_Content
 						'sub'       => __( 'Hover', 'gppro-entry-content' ),
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content .wp-caption-text a:hover',
+						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
+						'selector'  => 'text-decoration'
+					),
+				),
+			),
+
+			'section-break-entry-content-bquotes'  => array(
+				'break' => array(
+					'type'  => 'thin',
+					'title' => __( 'Block Quotes', 'gppro-entry-content' ),
+				),
+			),
+
+			'entry-content-bquotes-area-padding-setup'    => array(
+				'title'     => __( 'Area Padding', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-bquotes-padding-top'	=> array(
+						'label'    => __( 'Top', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'padding-top',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-padding-bottom'	=> array(
+						'label'    => __( 'Bottom', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'padding-bottom',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-padding-left'	=> array(
+						'label'    => __( 'Left', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'padding-left',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-padding-right'	=> array(
+						'label'    => __( 'Right', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'padding-right',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+				),
+			),
+
+			'entry-content-bquotes-area-margin-setup'    => array(
+				'title'     => __( 'Area Margins', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-bquotes-margin-top'	=> array(
+						'label'    => __( 'Top', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'margin-top',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-margin-bottom'	=> array(
+						'label'    => __( 'Bottom', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'margin-bottom',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-margin-left'	=> array(
+						'label'    => __( 'Left', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'margin-left',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+					'entry-content-bquotes-margin-right'	=> array(
+						'label'    => __( 'Right', 'gppro' ),
+						'input'    => 'spacing',
+						'target'   => '.entry-content blockquote',
+						'selector' => 'margin-right',
+						'builder'  => 'GP_Pro_Builder::px_css',
+						'min'      => '0',
+						'max'      => '100',
+						'step'     => '1',
+					),
+				),
+			),
+
+			'entry-content-bquotes-color-setup'    => array(
+				'title'     => __( 'Colors', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-bquotes-background' => array(
+						'label'     => __( 'Background Color', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => '.entry-content blockquote',
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'background-color'
+					),
+					'entry-content-bquotes-color-text' => array(
+						'label'     => __( 'Base Color', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => '.entry-content blockquote',
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'color'
+					),
+					'entry-content-bquotes-color-link'  => array(
+						'label'     => __( 'Link Color', 'gppro-entry-content' ),
+						'sub'       => __( 'Base', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => '.entry-content blockquote a',
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'color'
+					),
+					'entry-content-bquotes-color-link-hov'  => array(
+						'label'     => __( 'Link Color', 'gppro-entry-content' ),
+						'sub'       => __( 'Hover', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => array( '.entry-content blockquote a:hover', '.entry-content blockquote a:focus' ),
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'color'
+					),
+				),
+			),
+
+			'entry-content-bquotes-type-setup'    => array(
+				'title'     => __( 'Typography', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-bquotes-stack' => array(
+						'label'     => __( 'Font Stack', 'gppro-entry-content' ),
+						'input'     => 'font-stack',
+						'target'    => '.entry-content blockquote',
+						'builder'   => 'GP_Pro_Builder::stack_css',
+						'selector'  => 'font-family'
+					),
+					'entry-content-bquotes-size'  => array(
+						'label'     => __( 'Font Size', 'gppro-entry-content' ),
+						'sub'       => __( 'px', 'gppro' ),
+						'input'     => 'font-size',
+						'scale'     => 'text',
+						'target'    => '.entry-content blockquote',
+						'builder'   => 'GP_Pro_Builder::px_css',
+						'selector'  => 'font-size',
+					),
+					'entry-content-bquotes-weight'    => array(
+						'label'     => __( 'Font Weight', 'gppro-entry-content' ),
+						'input'     => 'font-weight',
+						'target'    => '.entry-content blockquote',
+						'builder'   => 'GP_Pro_Builder::number_css',
+						'selector'  => 'font-weight',
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+					),
+				),
+			),
+
+			'entry-content-bquotes-appearance-setup'    => array(
+				'title'     => __( 'Text Appearance', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-bquotes-margin-bottom'   => array(
+						'label'     => __( 'Margin Bottom', 'gppro-entry-content' ),
+						'input'     => 'spacing',
+						'target'    => '.entry-content blockquote p',
+						'builder'   => 'GP_Pro_Builder::px_css',
+						'selector'  => 'margin-bottom',
+						'min'       => '0',
+						'max'       => '60',
+						'step'      => '1'
+					),
+					'entry-content-bquotes-padding-bottom'  => array(
+						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
+						'input'     => 'spacing',
+						'target'    => '.entry-content blockquote p',
+						'builder'   => 'GP_Pro_Builder::px_css',
+						'selector'  => 'padding-bottom',
+						'min'       => '0',
+						'max'       => '60',
+						'step'      => '1'
+					),
+					'entry-content-bquotes-transform'   => array(
+						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
+						'input'     => 'text-transform',
+						'target'    => '.entry-content blockquote p',
+						'builder'   => 'GP_Pro_Builder::text_css',
+						'selector'  => 'text-transform'
+					),
+					'entry-content-bquotes-align'   => array(
+						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
+						'input'     => 'text-align',
+						'target'    => '.entry-content blockquote p',
+						'builder'   => 'GP_Pro_Builder::text_css',
+						'selector'  => 'text-align'
+					),
+					'entry-content-bquotes-style'  => array(
+						'label'     => __( 'Font Style', 'gppro' ),
+						'input'     => 'radio',
+						'options'   => array(
+							array(
+								'label' => __( 'Normal', 'gppro' ),
+								'value' => 'normal',
+							),
+							array(
+								'label' => __( 'Italic', 'gppro' ),
+								'value' => 'italic'
+							),
+						),
+						'target'    => '.entry-content blockquote p',
+						'builder'   => 'GP_Pro_Builder::text_css',
+						'selector'  => 'font-style'
+					),
+					'entry-content-bquotes-link-dec' => array(
+						'label'     => __( 'Link Style', 'gppro-entry-content' ),
+						'sub'       => __( 'Base', 'gppro-entry-content' ),
+						'input'     => 'text-decoration',
+						'target'    => '.entry-content blockquote p a',
+						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
+						'selector'  => 'text-decoration'
+					),
+					'entry-content-bquotes-link-dec-hov' => array(
+						'label'     => __( 'Link Style', 'gppro-entry-content' ),
+						'sub'       => __( 'Hover', 'gppro-entry-content' ),
+						'input'     => 'text-decoration',
+						'target'    => array( '.entry-content blockquote p a:hover', '.entry-content blockquote p a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
 						'selector'  => 'text-decoration'
 					),
