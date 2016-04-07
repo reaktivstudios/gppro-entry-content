@@ -1,8 +1,8 @@
 === Genesis Design Palette Pro - Entry Content Style ===
 Contributors: norcross, jjeaton, reaktivstudios
-Requires at least: 3.7
+Requires at least: 4.0
 Tested up to: 4.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,11 @@ Install and activate it.
 == Screenshots ==
 
 == Changelog ==
+
+= 1.0.3: 2015-04-07 =
+
+* Add new settings for blockquotes
+* Add better settings for links within paragraphs.
 
 = 1.0.2: 2015-06-17 =
 

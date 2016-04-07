@@ -4,11 +4,13 @@ Plugin Name: Genesis Design Palette Pro - Entry Content
 Plugin URI: https://genesisdesignpro.com/
 Description: Fine tune the look of the content inside posts and pages in Genesis Design Palette Pro
 Author: Reaktiv Studios
-Version: 1.0.2
-Requires at least: 3.7
+Version: 1.0.3
+Requires at least: 4.0
 Author URI: http://reaktivstudios.com/
 */
-/*  Copyright 2014 Andrew Norcross, Reaktiv Studios
+
+/*
+	Copyright 2014 Andrew Norcross, Reaktiv Studios
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,127 +26,134 @@ Author URI: http://reaktivstudios.com/
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// Set our plugin base as a constant.
 if ( ! defined( 'GPECN_BASE' ) ) {
-	define( 'GPECN_BASE', plugin_basename(__FILE__) );
+	define( 'GPECN_BASE', plugin_basename( __FILE__ ) );
 }
 
+// Set our plugin directory as a constant.
 if ( ! defined( 'GPECN_DIR' ) ) {
 	define( 'GPECN_DIR', dirname( __FILE__ ) );
 }
 
+// Set our plugin version as a constant.
 if ( ! defined( 'GPECN_VER' ) ) {
-	define( 'GPECN_VER', '1.0.2' );
+	define( 'GPECN_VER', '1.0.3' );
 }
 
-
+/**
+ * Load our class.
+ */
 class GP_Pro_Entry_Content
 {
 
 	/**
-	 * Static property to hold our singleton instance
+	 * Static property to hold our singleton instance.
+	 *
 	 * @var instance
 	 */
 	static $instance = false;
 
 	/**
-	 * This is our constructor
+	 * This is our constructor. There are many like it but this one is mine.
 	 *
-	 * @return GP_Pro_Entry_Content
+	 * @return void.
 	 */
 	private function __construct() {
 
-		// general backend
+		// General backend.
 		add_action( 'plugins_loaded',                       array( $this, 'textdomain'                      )           );
 		add_action( 'admin_notices',                        array( $this, 'gppro_active_check'              ),  10      );
 		add_action( 'admin_notices',                        array( $this, 'gppro_version_check'             ),  10      );
 
-		// GP Pro specific
+		// GP Pro specific.
 		add_filter( 'gppro_set_defaults',                   array( $this, 'entry_defaults_base'             ),  40      );
+		add_filter( 'gppro_set_defaults',                   array( $this, 'entry_defaults_legacy'           ),  99      );
 		add_filter( 'gppro_admin_block_add',                array( $this, 'entry_content_block'             ),  35      );
 		add_filter( 'gppro_section_inline_post_content',    array( $this, 'entry_inline_post_content'       ),  25, 2   );
 		add_filter( 'gppro_sections',                       array( $this, 'entry_content_sections'          ),  20, 2   );
 	}
 
 	/**
-	 * If an instance exists, this returns it.  If
-	 * not, it creates one and retuns it.
+	 * If an instance exists, this returns it. If not, it creates one and retuns it.
 	 *
 	 * @return instance
 	 */
 	public static function getInstance() {
 
-		// load the instance if we don't have it
+		// Load the instance if we don't have it.
 		if ( ! self::$instance ) {
 			self::$instance = new self;
 		}
 
-		// return the instance
+		// Return the instance.
 		return self::$instance;
 	}
 
 	/**
-	 * load textdomain
-	 *
-	 * @return
+	 * Load textdomain.
 	 */
 	public function textdomain() {
 		load_plugin_textdomain( 'gppro-entry-content', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
-	 * check for GP Pro being active
+	 * Check for GP Pro being active.
 	 *
-	 * @return [type] [description]
+	 * @return HTML message or nothing.
 	 */
 	public function gppro_active_check() {
 
-		// get the current screen
-		$screen = get_current_screen();
-
-		// bail if not on the plugins page
-		if ( ! is_object( $screen ) || empty( $screen->parent_file ) || $screen->parent_file !== 'plugins.php' ) {
+		// Make sure the function exists.
+		if ( ! function_exists( 'get_current_screen' ) ) {
 			return;
 		}
 
-		// run the active check
+		// Get the current screen.
+		$screen = get_current_screen();
+
+		// Bail if not on the plugins page.
+		if ( ! is_object( $screen ) || empty( $screen->parent_file ) || 'plugins.php' !== esc_attr( $screen->parent_file ) ) {
+			return;
+		}
+
+		// Run the active check.
 		$coreactive = class_exists( 'Genesis_Palette_Pro' ) ? Genesis_Palette_Pro::check_active() : false;
 
-		// active. bail
+		// Active. bail.
 		if ( $coreactive ) {
 			return;
 		}
 
-		// not active. show message
-		echo '<div id="message" class="error fade below-h2"><p><strong>' . __( sprintf( 'This plugin requires Genesis Design Palette Pro to function and cannot be activated.' ), 'gppro-entry-content' ) . '</strong></p></div>';
+		// Not active. Show message.
+		echo '<div id="message" class="notice settings-error is-dismissible gppro-admin-warning"><p><strong>' . esc_html__( 'This plugin requires Genesis Design Palette Pro to function and cannot be activated.', 'gppro-entry-content' ).'</strong></p></div>';
 
-		// hide activation method
+		// Hide activation method.
 		unset( $_GET['activate'] );
 
-		// deactivate the plugin
+		// Deactivate the plugin.
 		deactivate_plugins( plugin_basename( __FILE__ ) );
 
-		// and finish
+		// And finish.
 		return;
 	}
 
 	/**
-	 * Check for valid Design Palette Pro Version
+	 * Check for valid Design Palette Pro Version.
 	 *
 	 * Requires version 1.3.0+
 	 *
 	 * @since 1.0.1
-	 *
 	 */
 	public function gppro_version_check() {
 
-		// get the version
+		// Get the version.
 		$dppver = defined( 'GPP_VER' ) ? GPP_VER : 0;
 
-		// do the message
+		// Do the message.
 		if ( version_compare( $dppver, '1.3.0', '<' ) ) {
 			printf(
-				'<div class="updated"><p>' . esc_html__( 'Please upgrade %2$sDesign Palette Pro to version 1.3.0 or greater%3$s to continue using the %1$s extension.', 'gppro' ) . '</p></div>',
-				'<strong>' . 'Genesis Design Palette Pro - Entry Content' . '</strong>',
+				'<div class="updated"><p>' . esc_html__( 'Please upgrade %1$sDesign Palette Pro to version 1.3.0 or greater%2$s to continue using the Entry Content extension.', 'gppro' ) . '</p></div>',
 				'<a href="' . esc_url( admin_url( 'plugins.php?plugin_status=upgrade' ) ) . '">',
 				'</a>'
 			);
@@ -152,13 +161,15 @@ class GP_Pro_Entry_Content
 	}
 
 	/**
-	 * swap default values
+	 * Swap default values.
 	 *
-	 * @return string $defaults
+	 * @param  array $defaults  The original array of default values.
+	 *
+	 * @return array $defaults  The default values, updated.
 	 */
 	public function entry_defaults_base( $defaults ) {
 
-		// fetch the existing defaults
+		// Fetch the existing defaults.
 		$title_base      = ! empty( $defaults['post-title-text'] ) ? $defaults['post-title-text'] : '';
 		$title_stack     = ! empty( $defaults['post-title-stack'] ) ? $defaults['post-title-stack'] : '';
 
@@ -170,6 +181,13 @@ class GP_Pro_Entry_Content
 		$text_weight     = ! empty( $defaults['post-entry-weight'] ) ? $defaults['post-entry-weight'] : '';
 		$text_style      = ! empty( $defaults['post-entry-style'] ) ? $defaults['post-entry-style'] : '';
 
+		$link_base       = ! empty( $defaults['post-entry-link'] ) ? $defaults['post-entry-link'] : '';
+		$link_hov        = ! empty( $defaults['post-entry-link-hov'] ) ? $defaults['post-entry-link-hov'] : '';
+		$link_stack      = ! empty( $defaults['post-entry-stack'] ) ? $defaults['post-entry-stack'] : '';
+		$link_size       = ! empty( $defaults['post-entry-size'] ) ? $defaults['post-entry-size'] : '';
+		$link_weight     = ! empty( $defaults['post-entry-weight'] ) ? $defaults['post-entry-weight'] : '';
+		$link_style      = ! empty( $defaults['post-entry-style'] ) ? $defaults['post-entry-style'] : '';
+
 		$list_ul_style   = ! empty( $defaults['post-entry-list-ul'] ) ? $defaults['post-entry-list-ul'] : '';
 		$list_ol_style   = ! empty( $defaults['post-entry-list-ol'] ) ? $defaults['post-entry-list-ol'] : '';
 
@@ -177,7 +195,7 @@ class GP_Pro_Entry_Content
 		$cap_link        = ! empty( $defaults['post-entry-caption-link'] ) ? $defaults['post-entry-caption-link'] : '';
 		$cap_link_hov    = ! empty( $defaults['post-entry-caption-link-hov'] ) ? $defaults['post-entry-caption-link-hov'] : '';
 
-		// general body
+		// General body.
 		$changes    = array(
 			'entry-content-h1-color-text'       => $title_base,
 			'entry-content-h1-color-link'       => $text_link,
@@ -258,8 +276,6 @@ class GP_Pro_Entry_Content
 			'entry-content-h6-link-dec-hov'     => 'underline',
 
 			'entry-content-p-color-text'        => $text_base,
-			'entry-content-p-color-link'        => $text_link,
-			'entry-content-p-color-link-hov'    => $text_link_hov,
 			'entry-content-p-stack'             => $text_stack,
 			'entry-content-p-size'              => $text_size,
 			'entry-content-p-weight'            => $text_weight,
@@ -267,8 +283,15 @@ class GP_Pro_Entry_Content
 			'entry-content-p-padding-bottom'    => '0',
 			'entry-content-p-transform'         => 'none',
 			'entry-content-p-align'             => 'left',
-			'entry-content-p-link-dec'          => 'underline',
-			'entry-content-p-link-dec-hov'      => 'underline',
+
+			'entry-content-a-color'             => $link_base,
+			'entry-content-a-color-hov'         => $link_hov,
+			'entry-content-a-stack'             => $link_stack,
+			'entry-content-a-size'              => $link_size,
+			'entry-content-a-weight'            => $link_weight,
+			'entry-content-a-transform'         => 'none',
+			'entry-content-a-dec'               => 'underline',
+			'entry-content-a-dec-hov'           => 'underline',
 
 			'entry-content-ul-color-text'       => $text_base,
 			'entry-content-ul-color-link'       => $text_link,
@@ -348,32 +371,68 @@ class GP_Pro_Entry_Content
 			'entry-content-code-weight'         => '400',
 		);
 
-		// bail if changes are empty (even though they shouldn't be)
+		// Bail if changes are empty (even though they shouldn't be).
 		if ( empty( $changes ) ) {
 			return $defaults;
 		}
 
-		// put into key value pair
+		// Put into key value pair.
 		foreach ( $changes as $key => $value ) {
 			$defaults[ $key ]   = $value;
 		}
 
-		// send them back
+		// Send them back.
 		return $defaults;
 	}
 
 	/**
-	 * add and filter options in the post content area
+	 * Check for the key names we had before adding new links.
 	 *
-	 * @return array|string $sections
+	 * @param  array $defaults  The original array of default values.
+	 *
+	 * @return array $defaults  The default values, updated.
+	 */
+	public function entry_defaults_legacy( $defaults ) {
+
+		// Check for the original entry content link color.
+		if ( ! empty( $defaults['entry-content-p-color-link'] ) ) {
+			$defaults['entry-content-a-color'] = $defaults['entry-content-p-color-link'];
+		}
+
+		// Check for the original entry content link hover color.
+		if ( ! empty( $defaults['entry-content-p-color-link-hov'] ) ) {
+			$defaults['entry-content-a-color-hov'] = $defaults['entry-content-p-color-link-hov'];
+		}
+
+		// Check for the original entry content link decoration type.
+		if ( ! empty( $defaults['entry-content-p-link-dec'] ) ) {
+			$defaults['entry-content-a-dec'] = $defaults['entry-content-p-link-dec'];
+		}
+
+		// Check for the original entry content link decoration hover type.
+		if ( ! empty( $defaults['entry-content-p-link-dec-hov'] ) ) {
+			$defaults['entry-content-a-dec-hov'] = $defaults['entry-content-p-link-dec-hov'];
+		}
+
+		// Send them back.
+		return $defaults;
+	}
+
+	/**
+	 * Add and filter options in the post content area.
+	 *
+	 * @param  array $sections  The original array of available sections.
+	 * @param  array $class     The body class being used.
+	 *
+	 * @return array $sections
 	 */
 	public function entry_inline_post_content( $sections, $class ) {
 
-		// remove the default post content settings in favor of our new ones
+		// Remove the default post content settings in favor of our new ones.
 		unset( $sections['post-entry-color-setup']['title'] );
 		unset( $sections['post-entry-type-setup'] );
 
-		// info about new area
+		// Info about new area.
 		$sections['post-entry-color-setup']['data'] = array(
 			'post-entry-plugin-active'  => array(
 				'input' => 'description',
@@ -381,21 +440,23 @@ class GP_Pro_Entry_Content
 			),
 		);
 
-		// send it back
+		// Send it back.
 		return $sections;
 	}
 
 	/**
-	 * add block to side
+	 * Add our new block to the side tab list.
 	 *
-	 * @return
+	 * @param  array $blocks  The current array of side blocks.
+	 *
+	 * @return array $blocks  The updated array of side blocks.
 	 */
 	public function entry_content_block( $blocks ) {
 
-		// check for the block first
+		// Check for the block first.
 		if ( ! isset( $blocks['entry-content'] ) ) {
 
-			// add the block
+			// Add the block.
 			$blocks['entry-content'] = array(
 				'tab'       => __( 'Entry Content', 'gppro-entry-content' ),
 				'title'     => __( 'Entry Content', 'gppro-entry-content' ),
@@ -404,18 +465,21 @@ class GP_Pro_Entry_Content
 			);
 		}
 
-		// return the block
+		// Return the block.
 		return $blocks;
 	}
 
 	/**
-	 * add section to side
+	 * Add and filter options in the new entry content area.
 	 *
-	 * @return
+	 * @param  array $sections  The original array of available sections.
+	 * @param  array $class     The body class being used.
+	 *
+	 * @return array $sections
 	 */
 	public function entry_content_sections( $sections, $class ) {
 
-		// build out the section
+		// Build out the section.
 		$sections['entry_content']  = array(
 
 			'section-break-entry-content-h1'    => array(
@@ -441,7 +505,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h1 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h1-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -449,7 +513,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h1 a:hover', '.entry-content h1 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -462,7 +526,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h1',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h1-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -479,7 +543,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h1',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -495,7 +559,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h1-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -505,21 +569,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h1-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h1',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h1-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h1',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h1-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -527,7 +591,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h1 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h1-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -535,7 +599,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h1 a:hover', '.entry-content h1 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -555,7 +619,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h2',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h2-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -563,7 +627,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h2 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h2-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -571,7 +635,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h2 a:hover', '.entry-content h2 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -584,7 +648,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h2',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h2-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -601,7 +665,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h2',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -617,7 +681,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h2-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -627,21 +691,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h2-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h2',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h2-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h2',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h2-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -649,7 +713,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h2 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h2-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -657,7 +721,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h2 a:hover', '.entry-content h2 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -677,7 +741,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h3',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h3-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -685,7 +749,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h3 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h3-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -693,7 +757,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h3 a:hover', '.entry-content h3 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -706,7 +770,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h3',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h3-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -723,7 +787,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h3',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -739,7 +803,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h3-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -749,21 +813,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h3-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h3',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h3-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h3',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h3-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -771,7 +835,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h3 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h3-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -779,7 +843,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h3 a:hover', '.entry-content h3 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -799,7 +863,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h4',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h4-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -807,7 +871,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h4 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h4-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -815,7 +879,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h4 a:hover', '.entry-content h4 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -828,7 +892,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h4',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h4-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -845,7 +909,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h4',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -861,7 +925,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h4-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -871,21 +935,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h4-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h4',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h4-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h4',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h4-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -893,7 +957,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h4 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h4-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -901,7 +965,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h4 a:hover', '.entry-content h4 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -921,7 +985,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h5',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h5-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -929,7 +993,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h5 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h5-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -937,7 +1001,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h5 a:hover', '.entry-content h5 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -950,7 +1014,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h5',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h5-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -967,7 +1031,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h5',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -983,7 +1047,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h5-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -993,21 +1057,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h5-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h5',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h5-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h5',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h5-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1015,7 +1079,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h5 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h5-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1023,7 +1087,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h5 a:hover', '.entry-content h5 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1043,7 +1107,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h6',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h6-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1051,7 +1115,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content h6 a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-h6-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1059,7 +1123,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content h6 a:hover', '.entry-content h6 a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1072,7 +1136,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content h6',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-h6-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1089,7 +1153,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content h6',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1105,7 +1169,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h6-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1115,21 +1179,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-h6-transform'    => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content h6',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-h6-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content h6',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-h6-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1137,7 +1201,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content h6 a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-h6-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1145,7 +1209,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content h6 a:hover', '.entry-content h6 a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1165,23 +1229,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content p',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
-					),
-					'entry-content-p-color-link'    => array(
-						'label'     => __( 'Link Color', 'gppro-entry-content' ),
-						'sub'       => __( 'Base', 'gppro-entry-content' ),
-						'input'     => 'color',
-						'target'    => '.entry-content p a',
-						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
-					),
-					'entry-content-p-color-link-hov'    => array(
-						'label'     => __( 'Link Color', 'gppro-entry-content' ),
-						'sub'       => __( 'Hover', 'gppro-entry-content' ),
-						'input'     => 'color',
-						'target'    => array( '.entry-content p a:hover', '.entry-content p a:focus' ),
-						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1194,7 +1242,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content p',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-p-size'  => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1211,7 +1259,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content p',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1227,7 +1275,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-p-padding-bottom'    => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1237,37 +1285,110 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-p-transform' => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content p',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-p-align' => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content p',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
-					'entry-content-p-link-dec' => array(
-						'label'     => __( 'Link Style', 'gppro-entry-content' ),
+				),
+			),
+
+			'section-break-entry-content-a'    => array(
+				'break' => array(
+					'type'  => 'thin',
+					'title' => __( 'Links', 'gppro-entry-content' ),
+				),
+			),
+
+			'entry-content-a-color-setup'   => array(
+				'title'     => __( 'Colors', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-a-color'    => array(
+						'label'     => __( 'Color', 'gppro-entry-content' ),
+						'sub'       => __( 'Base', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => '.entry-content p a',
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'color',
+					),
+					'entry-content-a-color-hov'    => array(
+						'label'     => __( 'Color', 'gppro-entry-content' ),
+						'sub'       => __( 'Hover', 'gppro-entry-content' ),
+						'input'     => 'color',
+						'target'    => array( '.entry-content p a:hover', '.entry-content p a:focus' ),
+						'builder'   => 'GP_Pro_Builder::hexcolor_css',
+						'selector'  => 'color',
+					),
+				),
+			),
+
+			'entry-content-a-type-setup'    => array(
+				'title'     => __( 'Typography', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-a-stack' => array(
+						'label'     => __( 'Font Stack', 'gppro-entry-content' ),
+						'input'     => 'font-stack',
+						'target'    => '.entry-content p a',
+						'builder'   => 'GP_Pro_Builder::stack_css',
+						'selector'  => 'font-family',
+					),
+					'entry-content-a-size'  => array(
+						'label'     => __( 'Font Size', 'gppro-entry-content' ),
+						'sub'       => __( 'px', 'gppro' ),
+						'input'     => 'font-size',
+						'scale'     => 'text',
+						'target'    => '.entry-content p a',
+						'builder'   => 'GP_Pro_Builder::px_css',
+						'selector'  => 'font-size',
+					),
+					'entry-content-a-weight'    => array(
+						'label'     => __( 'Font Weight', 'gppro-entry-content' ),
+						'input'     => 'font-weight',
+						'target'    => '.entry-content p a',
+						'builder'   => 'GP_Pro_Builder::number_css',
+						'selector'  => 'font-weight',
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
+					),
+				),
+			),
+
+			'entry-content-a-appearance-setup'  => array(
+				'title'     => __( 'Text Appearance', 'gppro-entry-content' ),
+				'data'      => array(
+					'entry-content-a-transform' => array(
+						'label'     => __( 'Appearance', 'gppro-entry-content' ),
+						'input'     => 'text-transform',
+						'target'    => '.entry-content p a',
+						'builder'   => 'GP_Pro_Builder::text_css',
+						'selector'  => 'text-transform',
+					),
+					'entry-content-a-dec' => array(
+						'label'     => __( 'Style', 'gppro-entry-content' ),
 						'sub'       => __( 'Base', 'gppro-entry-content' ),
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content p a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
-					'entry-content-p-link-dec-hov' => array(
-						'label'     => __( 'Link Style', 'gppro-entry-content' ),
+					'entry-content-a-dec-hov' => array(
+						'label'     => __( 'Style', 'gppro-entry-content' ),
 						'sub'       => __( 'Hover', 'gppro-entry-content' ),
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content p a:hover', '.entry-content p a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
+						'always_write' => true,
 					),
 				),
 			),
@@ -1287,7 +1408,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content ul',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-ul-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1295,7 +1416,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content ul a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-ul-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1303,7 +1424,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content ul a:hover', '.entry-content ul a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1316,7 +1437,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content ul',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-ul-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1333,7 +1454,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content ul',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1349,7 +1470,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-left',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ul-margin-bottom'    => array(
 						'label'     => __( 'Margin Bottom', 'gppro-entry-content' ),
@@ -1359,7 +1480,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ul-padding-left' => array(
 						'label'     => __( 'Padding Left', 'gppro-entry-content' ),
@@ -1369,7 +1490,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-left',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ul-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1379,7 +1500,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ul-list-style'   => array(
 						'label'     => __( 'List Style', 'gppro' ),
@@ -1393,14 +1514,14 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-transform',
 						'target'    => '.entry-content ul',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-ul-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content ul',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-ul-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1408,7 +1529,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content ul a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-ul-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1416,7 +1537,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content ul a:hover', '.entry-content ul a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1436,7 +1557,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content ol',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-ol-color-link'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1444,7 +1565,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content ol a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-ol-color-link-hov'   => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1452,7 +1573,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content ol a:hover', '.entry-content ol a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1465,7 +1586,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content ol',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-ol-size' => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1482,7 +1603,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content ol',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1498,7 +1619,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-left',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ol-margin-bottom'    => array(
 						'label'     => __( 'Margin Bottom', 'gppro-entry-content' ),
@@ -1508,7 +1629,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ol-padding-left' => array(
 						'label'     => __( 'Padding Left', 'gppro-entry-content' ),
@@ -1518,7 +1639,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-left',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ol-padding-bottom'   => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1528,7 +1649,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-ol-list-style'   => array(
 						'label'     => __( 'List Style', 'gppro' ),
@@ -1542,14 +1663,14 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-transform',
 						'target'    => '.entry-content ol',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-ol-align'    => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content ol',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-ol-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1557,7 +1678,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content ol a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-ol-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1565,7 +1686,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content ol a:hover', '.entry-content ol a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1585,7 +1706,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content .wp-caption-text',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-cap-color-link'  => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1593,7 +1714,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content .wp-caption-text a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-cap-color-link-hov'  => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1601,7 +1722,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content .wp-caption-text a:hover', '.entry-content .wp-caption-text a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1614,7 +1735,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content .wp-caption-text',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-cap-size'    => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1631,7 +1752,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content .wp-caption-text',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1647,7 +1768,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-cap-padding-bottom'  => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1657,21 +1778,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-cap-transform'   => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content .wp-caption-text',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-cap-align'   => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content .wp-caption-text',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-cap-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1679,7 +1800,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content .wp-caption-text a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-cap-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1687,7 +1808,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content .wp-caption-text a:hover',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1799,14 +1920,14 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content blockquote',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'background-color'
+						'selector'  => 'background-color',
 					),
 					'entry-content-bquotes-color-text' => array(
 						'label'     => __( 'Base Color', 'gppro-entry-content' ),
 						'input'     => 'color',
 						'target'    => '.entry-content blockquote',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-bquotes-color-link'  => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1814,7 +1935,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content blockquote a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 					'entry-content-bquotes-color-link-hov'  => array(
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
@@ -1822,7 +1943,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => array( '.entry-content blockquote a:hover', '.entry-content blockquote a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1835,7 +1956,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content blockquote',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-bquotes-size'  => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1852,7 +1973,7 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content blockquote',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
@@ -1868,7 +1989,7 @@ class GP_Pro_Entry_Content
 						'selector'  => 'margin-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-bquotes-padding-bottom'  => array(
 						'label'     => __( 'Padding Bottom', 'gppro-entry-content' ),
@@ -1878,21 +1999,21 @@ class GP_Pro_Entry_Content
 						'selector'  => 'padding-bottom',
 						'min'       => '0',
 						'max'       => '60',
-						'step'      => '1'
+						'step'      => '1',
 					),
 					'entry-content-bquotes-transform'   => array(
 						'label'     => __( 'Text Appearance', 'gppro-entry-content' ),
 						'input'     => 'text-transform',
 						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-transform'
+						'selector'  => 'text-transform',
 					),
 					'entry-content-bquotes-align'   => array(
 						'label'     => __( 'Text Alignment', 'gppro-entry-content' ),
 						'input'     => 'text-align',
 						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'text-align'
+						'selector'  => 'text-align',
 					),
 					'entry-content-bquotes-style'  => array(
 						'label'     => __( 'Font Style', 'gppro' ),
@@ -1904,12 +2025,12 @@ class GP_Pro_Entry_Content
 							),
 							array(
 								'label' => __( 'Italic', 'gppro' ),
-								'value' => 'italic'
+								'value' => 'italic',
 							),
 						),
 						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::text_css',
-						'selector'  => 'font-style'
+						'selector'  => 'font-style',
 					),
 					'entry-content-bquotes-link-dec' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1917,7 +2038,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => '.entry-content blockquote p a',
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 					'entry-content-bquotes-link-dec-hov' => array(
 						'label'     => __( 'Link Style', 'gppro-entry-content' ),
@@ -1925,7 +2046,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'text-decoration',
 						'target'    => array( '.entry-content blockquote p a:hover', '.entry-content blockquote p a:focus' ),
 						'builder'   => 'GP_Pro_Entry_Content::link_decorations',
-						'selector'  => 'text-decoration'
+						'selector'  => 'text-decoration',
 					),
 				),
 			),
@@ -1945,14 +2066,14 @@ class GP_Pro_Entry_Content
 						'input'     => 'color',
 						'target'    => '.entry-content code',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'background-color'
+						'selector'  => 'background-color',
 					),
 					'entry-content-code-color-text' => array(
 						'label'     => __( 'Base Color', 'gppro-entry-content' ),
 						'input'     => 'color',
 						'target'    => '.entry-content code',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
-						'selector'  => 'color'
+						'selector'  => 'color',
 					),
 				),
 			),
@@ -1965,7 +2086,7 @@ class GP_Pro_Entry_Content
 						'input'     => 'font-stack',
 						'target'    => '.entry-content code',
 						'builder'   => 'GP_Pro_Builder::stack_css',
-						'selector'  => 'font-family'
+						'selector'  => 'font-family',
 					),
 					'entry-content-code-size'   => array(
 						'label'     => __( 'Font Size', 'gppro-entry-content' ),
@@ -1982,58 +2103,59 @@ class GP_Pro_Entry_Content
 						'target'    => '.entry-content code',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
-						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' )
+						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),
 					),
 				),
 			),
 
-		); // end section
+		); // End section.
 
-		// check for inline add-ons
+		// Check for inline add-ons.
 		$sections['entry_content']  = apply_filters( 'gppro_section_inline_entry_content', $sections['entry_content'], $class );
 
-		// return the section
+		// Return the section.
 		return $sections;
 	}
 
 	/**
-	 * Custom builder for link decoration styles
+	 * Custom builder for link decoration styles.
 	 *
-	 * Remove bottom borders when using text-decoration setting
+	 * Remove bottom borders when using text-decoration setting.
 	 *
 	 * @since 1.0.1
 	 *
-	 * @param  string  $selector
-	 * @param  mixed  $value
+	 * @param  string $selector  The CSS selector being passed.
+	 * @param  mixed  $value     The stored setting value.
+	 *
 	 * @return string
 	 */
 	public static function link_decorations( $selector, $value ) {
 
-		// set the empty
-		$css = '';
+		// Set the empty.
+		$build  = '';
 
-		// switch our selector
+		// Switch our selector.
 		switch ( $selector ) {
 
 			case 'text-decoration':
 
-				$css .= GP_Pro_Builder::text_css( 'text-decoration', $value );
-				$css .= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
+				$build .= GP_Pro_Builder::text_css( 'text-decoration', $value );
+				$build .= GP_Pro_Builder::text_css( 'border-bottom-style', 'none' );
 
 				break;
 			default:
 
-				$css .= '';
+				$build .= '';
 				break;
 		}
 
-		// return the CSS to the builder
-		return $css;
+		// Return the CSS to the builder.
+		return $build;
 	}
 
-/// end class
+	// End class.
 }
 
-// Instantiate our class
+// Instantiate our class.
 $GP_Pro_Entry_Content = GP_Pro_Entry_Content::getInstance();
 
