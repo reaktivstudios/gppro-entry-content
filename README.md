@@ -31,7 +31,7 @@ Install and activate it.
 
 ## Changelog ##
 
-### 1.0.3: 2015-04-07 ###
+### 1.0.3: 2016-04-07 ###
 
 * Add new settings for blockquotes
 * Add better settings for links within paragraphs.
