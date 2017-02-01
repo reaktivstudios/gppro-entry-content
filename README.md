@@ -31,7 +31,7 @@ Install and activate it.
 
 ## Changelog ##
 
-### 1.0.4: 2017-00-00 ###
+### 1.0.4: 2017-02-01 ###
 
 * Updated blockquote settings to include paragraph tags
 
