@@ -5,7 +5,7 @@
 
 **Tested up to:** 4.7
 
-**Stable tag:** 1.0.4-dev
+**Stable tag:** 1.0.4
 
 **License:** GPLv2 or later
 
