@@ -4,9 +4,9 @@ Plugin Name: Genesis Design Palette Pro - Entry Content
 Plugin URI: https://genesisdesignpro.com/
 Description: Fine tune the look of the content inside posts and pages in Genesis Design Palette Pro
 Author: Reaktiv Studios
-Version: 1.0.3
+Version: 1.0.4-dev
 Requires at least: 4.0
-Author URI: http://reaktivstudios.com/
+Author URI: https://reaktivstudios.com/
 */
 
 /*
@@ -38,7 +38,7 @@ if ( ! defined( 'GPECN_DIR' ) ) {
 
 // Set our plugin version as a constant.
 if ( ! defined( 'GPECN_VER' ) ) {
-	define( 'GPECN_VER', '1.0.3' );
+	define( 'GPECN_VER', '1.0.4-dev' );
 }
 
 /**
@@ -1924,14 +1924,14 @@ class GP_Pro_Entry_Content
 					'entry-content-bquotes-background' => array(
 						'label'     => __( 'Background Color', 'gppro-entry-content' ),
 						'input'     => 'color',
-						'target'    => '.entry-content blockquote',
+						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
 						'selector'  => 'background-color',
 					),
 					'entry-content-bquotes-color-text' => array(
 						'label'     => __( 'Base Color', 'gppro-entry-content' ),
 						'input'     => 'color',
-						'target'    => '.entry-content blockquote',
+						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
 						'selector'  => 'color',
 					),
@@ -1939,7 +1939,7 @@ class GP_Pro_Entry_Content
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
 						'sub'       => __( 'Base', 'gppro-entry-content' ),
 						'input'     => 'color',
-						'target'    => '.entry-content blockquote a',
+						'target'    => '.entry-content blockquote p a',
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
 						'selector'  => 'color',
 					),
@@ -1947,7 +1947,7 @@ class GP_Pro_Entry_Content
 						'label'     => __( 'Link Color', 'gppro-entry-content' ),
 						'sub'       => __( 'Hover', 'gppro-entry-content' ),
 						'input'     => 'color',
-						'target'    => array( '.entry-content blockquote a:hover', '.entry-content blockquote a:focus' ),
+						'target'    => array( '.entry-content blockquote p a:hover', '.entry-content blockquote p a:focus' ),
 						'builder'   => 'GP_Pro_Builder::hexcolor_css',
 						'selector'  => 'color',
 					),
@@ -1960,7 +1960,7 @@ class GP_Pro_Entry_Content
 					'entry-content-bquotes-stack' => array(
 						'label'     => __( 'Font Stack', 'gppro-entry-content' ),
 						'input'     => 'font-stack',
-						'target'    => '.entry-content blockquote',
+						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::stack_css',
 						'selector'  => 'font-family',
 					),
@@ -1969,14 +1969,14 @@ class GP_Pro_Entry_Content
 						'sub'       => __( 'px', 'gppro' ),
 						'input'     => 'font-size',
 						'scale'     => 'text',
-						'target'    => '.entry-content blockquote',
+						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::px_css',
 						'selector'  => 'font-size',
 					),
 					'entry-content-bquotes-weight'    => array(
 						'label'     => __( 'Font Weight', 'gppro-entry-content' ),
 						'input'     => 'font-weight',
-						'target'    => '.entry-content blockquote',
+						'target'    => '.entry-content blockquote p',
 						'builder'   => 'GP_Pro_Builder::number_css',
 						'selector'  => 'font-weight',
 						'tip'       => __( 'Certain fonts will not display every weight.', 'gppro-entry-content' ),

@@ -3,9 +3,9 @@
 
 **Requires at least:** 4.0
 
-**Tested up to:** 4.5
+**Tested up to:** 4.7
 
-**Stable tag:** 1.0.3
+**Stable tag:** 1.0.4-dev
 
 **License:** GPLv2 or later
 
@@ -15,7 +15,7 @@
 
 Fine tune the look of the content inside posts and pages in Genesis Design Palette Pro. Edit heading tags, list items, and paragraphs individually to get a completely unique look.
 
-Requires the [Genesis Design Palette Pro](http://genesisdesignpro.com/ "Genesis Design Palette Pro") plugin.
+Requires the [Genesis Design Palette Pro](https://genesisdesignpro.com/ "Genesis Design Palette Pro") plugin.
 
 
 ## Installation ##
@@ -31,10 +31,14 @@ Install and activate it.
 
 ## Changelog ##
 
+### 1.0.4: 2017-00-00 ###
+
+* Updated blockquote settings to include paragraph tags
+
 ### 1.0.3: 2016-04-07 ###
 
 * Add new settings for blockquotes
-* Add better settings for links within paragraphs.
+* Add better settings for links within paragraphs
 
 ### 1.0.2: 2015-06-17 ###
 

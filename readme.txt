@@ -1,8 +1,8 @@
 === Genesis Design Palette Pro - Entry Content Style ===
 Contributors: norcross, jjeaton, reaktivstudios
 Requires at least: 4.0
-Tested up to: 4.5
-Stable tag: 1.0.3
+Tested up to: 4.7
+Stable tag: 1.0.4-dev
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Fine tune the look of the content inside posts and pages in Genesis Design Palet
 
 Fine tune the look of the content inside posts and pages in Genesis Design Palette Pro. Edit heading tags, list items, and paragraphs individually to get a completely unique look.
 
-Requires the [Genesis Design Palette Pro](http://genesisdesignpro.com/ "Genesis Design Palette Pro") plugin.
+Requires the [Genesis Design Palette Pro](https://genesisdesignpro.com/ "Genesis Design Palette Pro") plugin.
 
 
 == Installation ==
@@ -29,6 +29,10 @@ Install and activate it.
 == Screenshots ==
 
 == Changelog ==
+
+= 1.0.4: 2017-00-00 =
+
+* Updated blockquote settings to include paragraph tags
 
 = 1.0.3: 2016-04-07 =
 
