@@ -1,7 +1,7 @@
 === Genesis Design Palette Pro - Entry Content Style ===
 Contributors: norcross, jjeaton, reaktivstudios
 Requires at least: 4.0
-Tested up to: 4.7
+Tested up to: 4.9.5
 Stable tag: 1.0.5-dev
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
