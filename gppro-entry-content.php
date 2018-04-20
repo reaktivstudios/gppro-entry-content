@@ -6,7 +6,7 @@ Description: Fine tune the look of the content inside posts and pages in Genesis
 Author: Reaktiv Studios
 Version: 1.0.5-dev
 Requires at least: 4.0
-Author URI: https://reaktivstudios.com/
+Author URI: https://genesisdesignpro.com
 */
 
 /*
