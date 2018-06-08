@@ -6,11 +6,11 @@ Description: Fine tune the look of the content inside posts and pages in Genesis
 Author: Reaktiv Studios
 Version: 1.0.5-dev
 Requires at least: 4.0
-Author URI: https://reaktivstudios.com/
+Author URI: https://genesisdesignpro.com
 */
 
 /*
-	Copyright 2014 Andrew Norcross, Reaktiv Studios
+	Copyright 2018 Reaktiv Studios, Reaktiv Studios
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
