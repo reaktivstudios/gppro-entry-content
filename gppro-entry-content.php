@@ -4,7 +4,7 @@ Plugin Name: Genesis Design Palette Pro - Entry Content
 Plugin URI: https://genesisdesignpro.com/
 Description: Fine tune the look of the content inside posts and pages in Genesis Design Palette Pro
 Author: Reaktiv Studios
-Version: 1.0.5-dev
+Version: 1.0.6
 Requires at least: 4.0
 Author URI: https://genesisdesignpro.com
 */
