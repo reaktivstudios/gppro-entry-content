@@ -1450,7 +1450,7 @@ class GP_Pro_Entry_Content
 						'sub'       => __( 'px', 'gppro' ),
 						'input'     => 'font-size',
 						'scale'     => 'text',
-						'target'    => '.entry-content ul',
+						'target'    => '.entry-content ul:not(.ab-social-links)',
 						'builder'   => 'GP_Pro_Builder::px_css',
 						'selector'  => 'font-size',
 					),
